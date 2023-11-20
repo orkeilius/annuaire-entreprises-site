@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cat /run/secrets/env_file > /app/.env
+
 NODE_OPTIONS="--max-old-space-size=8192"
 
 npm run build
