@@ -2,7 +2,9 @@
 
 cat /run/secrets/env_file > /app/.env
 
-NODE_OPTIONS="--max-old-space-size=8192"
+NODE_OPTIONS="--max-old-space-size=1024"
+NODE_ENV=production
 
+npm run prepare
 npm run build
-./node_modules/.bin/next start -p 3000
+npm run start
