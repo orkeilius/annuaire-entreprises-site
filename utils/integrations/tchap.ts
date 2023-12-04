@@ -1,6 +1,10 @@
 import httpClient from '#utils/network';
 
 export default async function logInTchap(text: string) {
+  if (process.env.EXTERNAL_EGRESS_IS_DISABLED === 'yes') {
+    return [];
+  }
+
   if (!process.env.TCHAP_HOOK && !process.env.TCHAP_ROOM_ID) {
     throw new Error('TCHAP ENV variables manquantes');
   }

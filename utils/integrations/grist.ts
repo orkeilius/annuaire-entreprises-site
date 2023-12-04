@@ -31,6 +31,10 @@ function getGristUrl(tableKey: string) {
 }
 
 export async function logInGrist(tableKey: string, data: unknown[]) {
+  if (process.env.EXTERNAL_EGRESS_IS_DISABLED === 'yes') {
+    return [];
+  }
+
   await httpClient({
     method: 'POST',
     url: getGristUrl(tableKey),
@@ -47,10 +51,6 @@ export async function logInGrist(tableKey: string, data: unknown[]) {
 }
 
 export async function readFromGrist(tableKey: string) {
-  if (process.env.EXTERNAL_EGRESS_IS_DISABLED === 'yes') {
-    return [];
-  }
-
   const { records } = await httpClient<IGristRecords>({
     method: 'GET',
     url: getGristUrl(tableKey),
