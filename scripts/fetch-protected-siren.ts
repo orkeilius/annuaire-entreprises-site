@@ -16,7 +16,7 @@ async function fetchAndSaveProtectedSiren() {
     console.error(
       `[fetch-protected_siren]: GRIST_API_KEY environment variable is not set`
     );
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && process.env.EXTERNAL_EGRESS_IS_DISABLED !== 'yes') {
       process.exit(1);
     }
   }
@@ -68,7 +68,7 @@ async function fetchAndSaveProtectedSiren() {
   }
 
   if (!protectedSiren) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && process.env.EXTERNAL_EGRESS_IS_DISABLED !== 'yes') {
       process.exit(1);
     } else {
       console.log(
