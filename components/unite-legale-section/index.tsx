@@ -6,7 +6,7 @@ import AvisSituationLink from '#components/avis-situation-link';
 import { Section } from '#components/section';
 import { TwoColumnTable } from '#components/table/simple';
 import TVACell from '#components/tva-cell';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import { estActif } from '#models/etat-administratif';
 import { IUniteLegale, isAssociation, isServicePublic } from '#models/index';
 import { getAdresseUniteLegale, getNomComplet } from '#models/statut-diffusion';
@@ -27,8 +27,8 @@ const UniteLegaleSection: React.FC<{
 }> = ({ uniteLegale, session }) => {
   const hasLabelsAndCertificates = checkHasLabelsAndCertificates(uniteLegale);
 
-  const conventionsCollectives = Array.from(
-    new Set((uniteLegale.conventionsCollectives || []).map((cc) => cc.idcc))
+  const conventionsCollectives = Object.keys(
+    uniteLegale.conventionsCollectives || {}
   );
 
   const data = [
@@ -76,17 +76,22 @@ const UniteLegaleSection: React.FC<{
     ['', <br />],
     [
       'Convention(s) collective(s)',
-      conventionsCollectives.length > 0 ? (
-        <>
-          {conventionsCollectives.map((idcc) => (
+      conventionsCollectives.length > 0
+        ? conventionsCollectives.map((idcc) => (
             <React.Fragment key={idcc}>
-              {<Tag>IDCC {idcc}</Tag>}
-              <br />
+              {
+                <Tag
+                  link={{
+                    href: `/divers/${uniteLegale.siren}#idcc-${idcc}`,
+                    'aria-label': `Consulter les convention collectives de l'unité légale, dont l'IDCC ${idcc}`,
+                  }}
+                >
+                  IDCC {idcc}
+                </Tag>
+              }
             </React.Fragment>
-          ))}
-          <a href={`/divers/${uniteLegale.siren}`}>→ en savoir plus</a>
-        </>
-      ) : null,
+          ))
+        : null,
     ],
     // jump line and add label and certificates
     ...(hasLabelsAndCertificates

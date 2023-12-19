@@ -2,17 +2,17 @@ import { HttpNotFound } from '#clients/exceptions';
 import routes from '#clients/routes';
 import stubClientWithSnapshots from '#clients/stub-client-with-snaphots';
 import constants from '#models/constants';
+import { IConventionsCollectives } from '#models/conventions-collectives-list';
 import { createEtablissementsList } from '#models/etablissements-list';
 import { IETATADMINSTRATIF, estActif } from '#models/etat-administratif';
 import { IEtatCivil, IPersonneMorale } from '#models/immatriculation';
 import {
-  IConventionCollective,
   IEtablissement,
   NotEnoughParamsException,
   createDefaultEtablissement,
   createDefaultUniteLegale,
 } from '#models/index';
-import { ISearchResult, ISearchResults } from '#models/search';
+import { ISearchResults } from '#models/search';
 import SearchFilterParams from '#models/search-filter-params';
 import {
   extractNicFromSiret,
@@ -23,7 +23,6 @@ import {
   verifySiret,
 } from '#utils/helpers';
 import {
-  getConventionCollectives,
   libelleFromCategoriesJuridiques,
   libelleFromCodeNAFWithoutNomenclature,
 } from '#utils/helpers/formatting/labels';
@@ -48,6 +47,7 @@ type ClientSearchRechercheEntreprise = {
   fallbackOnStaging?: boolean;
   useCache?: boolean;
   inclureEtablissements?: boolean;
+  pageEtablissements?: number;
 };
 
 /**
@@ -60,6 +60,7 @@ const clientSearchRechercheEntreprise = async ({
   fallbackOnStaging = false,
   useCache = false,
   inclureEtablissements = false,
+  pageEtablissements = 1,
 }: ClientSearchRechercheEntreprise): Promise<ISearchResults> => {
   const encodedTerms = encodeURIComponent(searchTerms);
 
@@ -72,12 +73,21 @@ const clientSearchRechercheEntreprise = async ({
   const filters = searchFilterParams?.toApiURI();
 
   if (!filters && (!encodedTerms || encodedTerms.length < 3)) {
-    throw new NotEnoughParamsException('');
+    throw new NotEnoughParamsException();
   }
 
-  const url = `${route}?per_page=10&page=${page}&q=${encodedTerms}&limite_matching_etablissements=3${
+  let url = route;
+  url += `?per_page=10&page=${page}&q=${encodedTerms}&limite_matching_etablissements=3${
     searchFilterParams?.toApiURI() || ''
-  }&include_admin=slug${inclureEtablissements ? ',etablissements' : ''}`;
+  }`;
+  url += `&include_admin=slug`;
+
+  if (inclureEtablissements) {
+    url += `,etablissements`;
+  }
+  if (inclureEtablissements && pageEtablissements) {
+    url += `&page_etablissements=${pageEtablissements}`;
+  }
 
   const timeout = fallbackOnStaging
     ? constants.timeout.XL
@@ -92,21 +102,24 @@ const clientSearchRechercheEntreprise = async ({
   if (!results.results || results.results.length === 0) {
     throw new HttpNotFound('No results');
   }
-  return mapToDomainObjectNew(results);
+  return mapToDomainObjectNew(results, pageEtablissements);
 };
 
-const mapToDomainObjectNew = (data: ISearchResponse): ISearchResults => {
+const mapToDomainObjectNew = (
+  data: ISearchResponse,
+  pageEtablissements: number
+): ISearchResults => {
   const { total_results = 0, total_pages = 0, results = [], page } = data;
 
   return {
     currentPage: parseIntWithDefaultValue(page as string, 1),
     resultCount: total_results,
     pageCount: total_pages,
-    results: results.map(mapToUniteLegale),
+    results: results.map((r) => mapToUniteLegale(r, pageEtablissements)),
   };
 };
 
-const mapToUniteLegale = (result: IResult): ISearchResult => {
+const mapToUniteLegale = (result: IResult, pageEtablissements: number) => {
   const {
     nature_juridique,
     siege,
@@ -138,6 +151,7 @@ const mapToUniteLegale = (result: IResult): ISearchResult => {
     date_mise_a_jour = '',
     statut_diffusion = 'O',
     etablissements = [],
+    caractere_employeur = '',
   } = result;
 
   const nomComplet = (result.nom_complet || 'Nom inconnu').toUpperCase();
@@ -175,8 +189,7 @@ const mapToUniteLegale = (result: IResult): ISearchResult => {
     etablissements.length > 0
       ? etablissements.map(mapToEtablissement)
       : [etablissementSiege],
-    // hard code 1 for page as we dont paginate etablissement on recherche-entreprise
-    1,
+    pageEtablissements,
     result.nombre_etablissements
   );
 
@@ -196,7 +209,10 @@ const mapToUniteLegale = (result: IResult): ISearchResult => {
     libelleNatureJuridique: libelleFromCategoriesJuridiques(nature_juridique),
     categorieEntreprise: categorie_entreprise,
     anneeCategorieEntreprise: annee_categorie_entreprise,
-    trancheEffectif: tranche_effectif_salarie,
+    trancheEffectif:
+      caractere_employeur === 'N'
+        ? caractere_employeur
+        : tranche_effectif_salarie,
     anneeTrancheEffectif: annee_tranche_effectif_salarie,
     chemin: result.slug || result.siren,
     natureJuridique: nature_juridique || '',
@@ -229,8 +245,14 @@ const mapToUniteLegale = (result: IResult): ISearchResult => {
     colter,
     dateCreation: parseDateCreationInsee(date_creation),
     dateDerniereMiseAJour: date_mise_a_jour,
-    conventionsCollectives: etablissementsList.all.flatMap(
-      (e) => e.conventionsCollectives
+    conventionsCollectives: etablissements.reduce(
+      (idccSiretPair, { siret, liste_idcc }) => {
+        (liste_idcc || []).forEach((idcc) => {
+          idccSiretPair[idcc] = [...(idccSiretPair[idcc] || []), siret];
+        });
+        return idccSiretPair;
+      },
+      {} as IConventionsCollectives
     ),
   };
 };
@@ -285,7 +307,6 @@ const mapToEtablissement = (
     siret,
     latitude = '0',
     longitude = '0',
-    commune = '',
     code_postal = '',
     libelle_commune = '',
     adresse,
@@ -296,8 +317,8 @@ const mapToEtablissement = (
     activite_principale = '',
     date_creation = '',
     date_debut_activite = '',
-    liste_idcc,
     tranche_effectif_salarie = '',
+    caractere_employeur = '',
     annee_tranche_effectif_salarie = '',
   } = etablissement;
 
@@ -324,7 +345,10 @@ const mapToEtablissement = (
     codePostal: code_postal,
     commune: libelle_commune,
     adressePostale,
-    trancheEffectif: tranche_effectif_salarie,
+    trancheEffectif:
+      caractere_employeur === 'N'
+        ? caractere_employeur
+        : tranche_effectif_salarie,
     anneeTrancheEffectif: annee_tranche_effectif_salarie,
     latitude,
     longitude,
@@ -336,11 +360,6 @@ const mapToEtablissement = (
     activitePrincipale: activite_principale,
     dateCreation: parseDateCreationInsee(date_creation),
     dateDebutActivite: date_debut_activite,
-    conventionsCollectives: (liste_idcc || [])
-      .map((idcc) => {
-        return getConventionCollectives(idcc, siret);
-      })
-      .filter((cc): cc is IConventionCollective => !!cc),
   };
 };
 

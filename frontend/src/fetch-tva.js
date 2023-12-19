@@ -1,12 +1,17 @@
 /**
  * ASYNC CLIENT UPDATE FUNCTIONS
  */
-import * as Sentry from '@sentry/browser';
 import FrontStateMachineFactory from './front-state-machine';
-import { isViteSentryActivated } from './sentry';
 import { extractSirenSlugFromUrl, formatIntFr } from './utils';
 
 (function TVA() {
+  const logTVA = (siren, isValid) => {
+    try {
+      var _paq = window._paq || [];
+      _paq.push(['trackEvent', 'tva', isValid ? 'valid' : 'invalid', siren]);
+    } catch {}
+  };
+
   const tvaContainer = FrontStateMachineFactory('tva-cell-wrapper');
   if (tvaContainer.exists) {
     tvaContainer.setStarted();
@@ -30,14 +35,17 @@ import { extractSirenSlugFromUrl, formatIntFr } from './utils';
         } else {
           tvaContainer.setDefault();
         }
+
+        if (Math.random() < 0.01) {
+          logTVA(siren, !!tva);
+        }
       })
       .catch((e) => {
-        if (isViteSentryActivated) {
-          Sentry.captureException(e);
-        } else {
-          console.error(e);
-        }
+        // We dont log errors, as they are already logged in the backend
         tvaContainer.setError();
+        if (e instanceof TypeError) {
+          throw new Error("Client error while fetching TVA", {cause : e});
+        }
       });
   }
 })();

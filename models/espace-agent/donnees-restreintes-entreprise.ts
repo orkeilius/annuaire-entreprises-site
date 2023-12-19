@@ -2,11 +2,12 @@ import { clientApiEntrepriseConformiteFiscale } from '#clients/api-entreprise/co
 import { clientApiEntrepriseConformiteMSA } from '#clients/api-entreprise/conformite/msa';
 import { clientApiEntrepriseConformiteVigilance } from '#clients/api-entreprise/conformite/vigilance';
 import { HttpNotFound } from '#clients/exceptions';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import {
   APINotRespondingFactory,
   IAPINotRespondingError,
 } from '#models/api-not-responding';
+import { FetchRessourceException } from '#models/exceptions';
 import { Siren, Siret } from '#utils/helpers';
 import logErrorInSentry from '#utils/sentry';
 
@@ -31,10 +32,17 @@ export const getDonneesRestreintesEntreprise = async (
       return APINotRespondingFactory(EAdministration.DINUM, 404);
     }
 
-    logErrorInSentry(e, {
-      siren,
-      errorName: 'Error in API Entreprise',
-    });
+    logErrorInSentry(
+      new FetchRessourceException({
+        cause: e,
+        ressource: 'DonneesRestreintesAPIEntreprise',
+        context: {
+          siren,
+          siret,
+        },
+        administration: EAdministration.DINUM,
+      })
+    );
     return APINotRespondingFactory(EAdministration.DINUM, e.status || 500);
   };
 

@@ -1,6 +1,8 @@
 import { TVAUserException, clientTVA } from '#clients/api-vies';
 import { HttpConnectionReset } from '#clients/exceptions';
-import { verifySiren } from '#utils/helpers';
+import { EAdministration } from '#models/administrations/EAdministration';
+import { FetchRessourceException, IExceptionContext } from '#models/exceptions';
+import { verifySiren, verifyTVANumber } from '#utils/helpers';
 import { logWarningInSentry } from '#utils/sentry';
 import { tvaNumber } from './utils';
 
@@ -8,24 +10,40 @@ export const buildAndVerifyTVA = async (
   slug: string
 ): Promise<string | null> => {
   const siren = verifySiren(slug);
-  const tvaNumberFromSiren = tvaNumber(siren);
+  const tvaNumberFromSiren = verifyTVANumber(tvaNumber(siren));
 
   try {
     return await clientTVA(tvaNumberFromSiren);
-  } catch (eFirstTry: any) {
-    if (eFirstTry instanceof TVAUserException) {
-      throw eFirstTry;
+  } catch (e: any) {
+    if (e instanceof TVAUserException) {
+      throw e;
     }
-    // retry once as VIES randomely reset connection
-    try {
-      if (eFirstTry instanceof HttpConnectionReset) {
-        logWarningInSentry('ECONNRESET in API TVA : retrying');
-      } else {
-        logWarningInSentry('Error in API TVA : retrying');
-      }
-      return await clientTVA(tvaNumberFromSiren);
-    } catch (eFallback: any) {
-      throw eFallback;
-    }
+    const message =
+      e instanceof HttpConnectionReset
+        ? 'ECONNRESET in API TVA'
+        : 'Error in API TVA';
+    logWarningInSentry(
+      new FetchVerifyTVAException({
+        message,
+        cause: e,
+        context: { siren },
+      })
+    );
+    throw e;
   }
 };
+
+type IFetchEtablissementExceptionArgs = {
+  message?: string;
+  cause?: any;
+  context?: IExceptionContext;
+};
+export class FetchVerifyTVAException extends FetchRessourceException {
+  constructor(args: IFetchEtablissementExceptionArgs) {
+    super({
+      ressource: 'VerifyTVA',
+      administration: EAdministration.VIES,
+      ...args,
+    });
+  }
+}

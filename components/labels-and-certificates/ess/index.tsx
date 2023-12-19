@@ -1,11 +1,12 @@
 import FAQLink from '#components-ui/faq-link';
 import { INSEE } from '#components/administrations';
 import { Section } from '#components/section';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 
 export const CertificationESSSection = () => (
   <Section
     title="ESS - Entreprise Sociale et Solidaire"
+    id="ess"
     sources={[EAdministration.INSEE]}
   >
     Cette structure est enregistrée auprès de l’

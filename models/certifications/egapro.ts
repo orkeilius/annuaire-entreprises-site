@@ -1,11 +1,12 @@
 import { clientEgapro } from '#clients/egapro';
 import { clientEgaproRepresentationEquilibre } from '#clients/egapro/representationEquilibre';
 import { HttpNotFound } from '#clients/exceptions';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import {
   APINotRespondingFactory,
   IAPINotRespondingError,
 } from '#models/api-not-responding';
+import { FetchRessourceException } from '#models/exceptions';
 import logErrorInSentry from '#utils/sentry';
 import { IUniteLegale } from '..';
 
@@ -63,10 +64,16 @@ export const getEgapro = async (
     if (e instanceof HttpNotFound) {
       return APINotRespondingFactory(EAdministration.MTPEI, 404);
     }
-    logErrorInSentry(e, {
-      siren: uniteLegale.siren,
-      errorName: 'Error in API EGAPRO',
-    });
+    logErrorInSentry(
+      new FetchRessourceException({
+        cause: e,
+        ressource: 'Egapro',
+        context: {
+          siren: uniteLegale.siren,
+        },
+        administration: EAdministration.MTPEI,
+      })
+    );
     return APINotRespondingFactory(EAdministration.MTPEI, 500);
   }
 };

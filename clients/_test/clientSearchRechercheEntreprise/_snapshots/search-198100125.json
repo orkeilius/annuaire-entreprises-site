@@ -36,10 +36,10 @@
           "libelleTrancheEffectif": "",
           "latitude": "46.8030906",
           "longitude": "4.4244097",
-          "conventionsCollectives": [],
-          "anneeTrancheEffectif": "2020"
+          "anneeTrancheEffectif": "2021"
         },
         "allSiegesSiret": [],
+        "tva": null,
         "statutDiffusion": "diffusible",
         "etatAdministratif": "en activité",
         "nomComplet": "LYCEE POLYVALENT JEAN JAURES",
@@ -72,8 +72,7 @@
               "libelleTrancheEffectif": "",
               "latitude": "46.8030906",
               "longitude": "4.4244097",
-              "conventionsCollectives": [],
-              "anneeTrancheEffectif": "2020"
+              "anneeTrancheEffectif": "2021"
             }
           ],
           "open": [
@@ -101,8 +100,7 @@
               "libelleTrancheEffectif": "",
               "latitude": "46.8030906",
               "longitude": "4.4244097",
-              "conventionsCollectives": [],
-              "anneeTrancheEffectif": "2020"
+              "anneeTrancheEffectif": "2021"
             }
           ],
           "unknown": [],
@@ -118,9 +116,9 @@
         "dateDerniereMiseAJour": "2023-09-21T03:34:50",
         "dateDebutActivite": "",
         "trancheEffectif": "22",
-        "anneeCategorieEntreprise": "2020",
+        "anneeCategorieEntreprise": "2021",
         "categorieEntreprise": "PME",
-        "anneeTrancheEffectif": "2020",
+        "anneeTrancheEffectif": "2021",
         "dirigeant": null,
         "complements": {
           "estBio": false,
@@ -145,7 +143,7 @@
         "colter": {
           "codeColter": null
         },
-        "conventionsCollectives": [],
+        "conventionsCollectives": {},
         "matchingEtablissements": [],
         "nombreEtablissements": 1,
         "nombreEtablissementsOuverts": 1,

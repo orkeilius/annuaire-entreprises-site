@@ -7,15 +7,15 @@ import { DILA } from '#components/administrations';
 import { DataSection } from '#components/section/data-section';
 import { FullTable } from '#components/table/full';
 import { UniteLegalePageLink } from '#components/unite-legale-page-link';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import { IAssociation } from '#models/index';
 import { formatDate } from '#utils/helpers';
 import { useFetchJOAFE } from 'hooks';
 
 const AnnoncesAssociationSection: React.FC<{
-  association: IAssociation;
-}> = ({ association }) => {
-  const annoncesAssociation = useFetchJOAFE(association);
+  uniteLegale: IAssociation;
+}> = ({ uniteLegale }) => {
+  const annoncesAssociation = useFetchJOAFE(uniteLegale);
   return (
     <DataSection
       title="Annonces Journal Officiel des Associations"
@@ -27,7 +27,7 @@ const AnnoncesAssociationSection: React.FC<{
           {annoncesAssociation.annonces.filter(
             (annonce) => annonce.typeAvisLibelle === 'Création'
           ).length === 0 && (
-            <AssociationCreationNotFoundAlert association={association} />
+            <AssociationCreationNotFoundAlert uniteLegale={uniteLegale} />
           )}
           {annoncesAssociation.annonces.length === 0 ? (
             <div>
@@ -50,8 +50,8 @@ const AnnoncesAssociationSection: React.FC<{
                 , consolidé par la <DILA />. Pour en savoir plus, vous pouvez
                 consulter{' '}
                 <UniteLegalePageLink
-                  uniteLegale={association}
-                  href={`${routes.journalOfficielAssociations.site.recherche}?q=${association.siren}`}
+                  uniteLegale={uniteLegale}
+                  href={`${routes.journalOfficielAssociations.site.recherche}?q=${uniteLegale.siren}`}
                   siteName="le site du JOAFE"
                 />
                 &nbsp;:

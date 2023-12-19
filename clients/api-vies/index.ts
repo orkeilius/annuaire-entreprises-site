@@ -1,6 +1,7 @@
+import { clientAPIProxy } from '#clients/api-proxy/client';
 import routes from '#clients/routes';
 import stubClientWithSnapshots from '#clients/stub-client-with-snaphots';
-import { httpGet } from '#utils/network';
+import { TVANumber } from '#utils/helpers';
 
 type IVIESResponse = {
   isValid: boolean;
@@ -32,20 +33,22 @@ export class TVAUserException extends Error {
   constructor(public message: string) {
     super(message);
     this.message = message;
+    this.name = 'TVAUserException';
   }
 }
+
 /**
  * Call VIES to validate a French TVA number
  * @param tva
  * @returns TVA number if valid else null
  */
 const clientTVA = async (
-  tva: string,
+  tva: TVANumber,
   useCache = true
 ): Promise<string | null> => {
-  const url = `${routes.tva}${tva}`;
+  const url = `${routes.proxy.tva}${tva}`;
 
-  const data = await httpGet<IVIESResponse>(url, { useCache });
+  const data = await clientAPIProxy<IVIESResponse>(url, { useCache });
 
   if (data.userError && ['VALID', 'INVALID'].indexOf(data.userError) === -1) {
     throw new TVAUserException(data.userError);

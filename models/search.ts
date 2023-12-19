@@ -10,11 +10,11 @@ import {
 import { isProtectedSiren } from '#utils/helpers/is-protected-siren-or-siret';
 import { logWarningInSentry } from '#utils/sentry';
 import {
+  FetchRechercheEntrepriseException,
   IEtablissement,
-  IsLikelyASirenOrSiretException,
   IUniteLegale,
+  IsLikelyASirenOrSiretException,
   NotEnoughParamsException,
-  SearchEngineError,
 } from '.';
 
 export interface ISearchResult extends IUniteLegale {
@@ -41,7 +41,9 @@ const noResults = {
   results: [],
   notEnoughParams: false,
 };
-
+class APIRechercheEntrepriseException extends Error {
+  name = 'APIRechercheEntrepriseException';
+}
 const search = async (
   searchTerm: string,
   page: number,
@@ -63,9 +65,15 @@ const search = async (
     });
   } catch (e: any) {
     if (e instanceof HttpBadRequestError) {
-      logWarningInSentry('BadParams in API Recherche Entreprise', {
-        details: searchFilterParams.toApiURI(),
-      });
+      logWarningInSentry(
+        new FetchRechercheEntrepriseException({
+          cause: e,
+          message: 'BadParams in API Recherche Entreprise',
+          context: {
+            details: searchFilterParams.toApiURI(),
+          },
+        })
+      );
       return { ...noResults, badParams: true };
     }
 
@@ -92,9 +100,12 @@ const search = async (
       if (eFallback instanceof HttpNotFound) {
         return noResults;
       }
-      throw new SearchEngineError(
-        `term : ${searchTerm} - ${eFallback.toString()}`
-      );
+      throw new FetchRechercheEntrepriseException({
+        cause: eFallback,
+        context: {
+          details: searchTerm,
+        },
+      });
     }
   }
 };

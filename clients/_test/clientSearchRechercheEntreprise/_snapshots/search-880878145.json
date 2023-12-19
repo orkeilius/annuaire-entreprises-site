@@ -36,10 +36,10 @@
           "libelleTrancheEffectif": "",
           "latitude": "48.870938",
           "longitude": "2.305916",
-          "conventionsCollectives": [],
-          "anneeTrancheEffectif": "2020"
+          "anneeTrancheEffectif": "2021"
         },
         "allSiegesSiret": [],
+        "tva": null,
         "statutDiffusion": "diffusible",
         "etatAdministratif": "cessée",
         "nomComplet": "GANYMEDE",
@@ -72,8 +72,7 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.870938",
               "longitude": "2.305916",
-              "conventionsCollectives": [],
-              "anneeTrancheEffectif": "2020"
+              "anneeTrancheEffectif": "2021"
             }
           ],
           "open": [],
@@ -103,8 +102,7 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.870938",
               "longitude": "2.305916",
-              "conventionsCollectives": [],
-              "anneeTrancheEffectif": "2020"
+              "anneeTrancheEffectif": "2021"
             }
           ],
           "nombreEtablissementsOuverts": 0,
@@ -118,9 +116,9 @@
         "dateDerniereMiseAJour": "2023-09-21T03:34:50",
         "dateDebutActivite": "",
         "trancheEffectif": "01",
-        "anneeCategorieEntreprise": "2020",
+        "anneeCategorieEntreprise": "2021",
         "categorieEntreprise": "PME",
-        "anneeTrancheEffectif": "2020",
+        "anneeTrancheEffectif": "2021",
         "dirigeant": null,
         "complements": {
           "estBio": false,
@@ -145,7 +143,7 @@
         "colter": {
           "codeColter": null
         },
-        "conventionsCollectives": [],
+        "conventionsCollectives": {},
         "matchingEtablissements": [],
         "nombreEtablissements": 1,
         "nombreEtablissementsOuverts": 0,

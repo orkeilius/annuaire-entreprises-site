@@ -1,10 +1,11 @@
 import { HttpNotFound } from '#clients/exceptions';
 import { clientJOAFE } from '#clients/open-data-soft/clients/journal-officiel-associations';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import {
   APINotRespondingFactory,
   IAPINotRespondingError,
 } from '#models/api-not-responding';
+import { FetchRessourceException } from '#models/exceptions';
 import { IdRna, Siren, verifyIdRna } from '#utils/helpers';
 import logErrorInSentry from '#utils/sentry';
 import { IImmatriculation } from '.';
@@ -45,10 +46,17 @@ export const getImmatriculationJOAFE = async (
       return APINotRespondingFactory(EAdministration.DILA, 404);
     }
 
-    logErrorInSentry(e, {
-      siren,
-      errorName: 'Error in API JOAFE',
-    });
+    logErrorInSentry(
+      new FetchRessourceException({
+        cause: e,
+        ressource: 'ImmatriculationJOAFE',
+        context: {
+          siren,
+          idRna: idRnaAsString,
+        },
+        administration: EAdministration.DILA,
+      })
+    );
     return APINotRespondingFactory(EAdministration.DILA, 500);
   }
 };

@@ -1,25 +1,34 @@
 import { clientDCA } from '#clients/open-data-soft/clients/journal-officiel-associations';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
+import { FetchRessourceException } from '#models/exceptions';
 import { IUniteLegale as IAssociation } from '#models/index';
 import { IdRna } from '#utils/helpers';
 import logErrorInSentry from '#utils/sentry';
 import { useFetchData } from './use-fetch-data';
 
-export const useFetchComptesAssociation = (association: IAssociation) => {
-  const idRna = association.association.idAssociation as IdRna;
-  const siren = association.siren;
+export const useFetchComptesAssociation = (uniteLegale: IAssociation) => {
+  const idRna = uniteLegale.association.idAssociation as IdRna;
+  const siren = uniteLegale.siren;
   return useFetchData(
     {
       fetchData: () => clientDCA(siren, idRna as IdRna),
       administration: EAdministration.DILA,
       logError: (e: any) => {
-        logErrorInSentry(e, {
-          errorName: 'error in API JOAFE : COMPTES',
-          details: `RNA : ${idRna}`,
-          siren: association.siren,
+        if (e.status === 404) {
+          return;
+        }
+        const exception = new FetchRessourceException({
+          ressource: 'ComptesAssociation',
+          administration: EAdministration.DILA,
+          cause: e,
+          context: {
+            siren,
+            idRna,
+          },
         });
+        logErrorInSentry(exception);
       },
     },
-    [association]
+    [uniteLegale]
   );
 };

@@ -1,13 +1,13 @@
 import { LineChart } from '#components/chart/line';
 import { DataSection } from '#components/section/data-section';
 import { FullTable } from '#components/table/full';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import {
   APINotRespondingFactory,
   isAPINotResponding,
 } from '#models/api-not-responding';
 import constants from '#models/constants';
-import { IAssociation } from '#models/index';
+import { IDataAssociation } from '#models/index';
 import { formatCurrency } from '#utils/helpers';
 
 const ColorCircle = ({ color }: { color: string }) => (
@@ -17,10 +17,16 @@ const ColorCircle = ({ color }: { color: string }) => (
 const colorResultat = constants.chartColors[1];
 const colorCA = constants.chartColors[4];
 
+/**
+ * We use to have finances for association but data disappeared from open data API.
+ *
+ * @param param0
+ * @returns
+ */
 export const FinancesAssociationSection: React.FC<{
-  association: IAssociation;
+  association: IDataAssociation;
 }> = ({ association }) => {
-  const { data } = association.association;
+  const data = association;
   const financesAssociation =
     (!!data &&
       !isAPINotResponding(data) &&
@@ -49,9 +55,7 @@ export const FinancesAssociationSection: React.FC<{
                 tooltip: {
                   callbacks: {
                     label(tooltipItem) {
-                      return formatCurrency(
-                        tooltipItem.parsed.y.toString()
-                      ).toString();
+                      return formatCurrency(tooltipItem.parsed.y.toString());
                     },
                   },
                 },

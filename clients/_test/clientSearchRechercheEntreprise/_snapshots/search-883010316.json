@@ -36,10 +36,10 @@
           "libelleTrancheEffectif": "",
           "latitude": "48.886494",
           "longitude": "2.542338",
-          "conventionsCollectives": [],
           "anneeTrancheEffectif": null
         },
         "allSiegesSiret": [],
+        "tva": null,
         "statutDiffusion": "diffusible",
         "etatAdministratif": "cessée",
         "nomComplet": "RAPHAEL DUBIGNY",
@@ -72,7 +72,6 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.886494",
               "longitude": "2.542338",
-              "conventionsCollectives": [],
               "anneeTrancheEffectif": null
             }
           ],
@@ -103,7 +102,6 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.886494",
               "longitude": "2.542338",
-              "conventionsCollectives": [],
               "anneeTrancheEffectif": null
             }
           ],
@@ -118,8 +116,8 @@
         "dateDerniereMiseAJour": "2023-09-21T03:34:50",
         "dateDebutActivite": "",
         "trancheEffectif": null,
-        "anneeCategorieEntreprise": "2020",
-        "categorieEntreprise": "PME",
+        "anneeCategorieEntreprise": null,
+        "categorieEntreprise": null,
         "anneeTrancheEffectif": null,
         "dirigeant": null,
         "complements": {
@@ -145,7 +143,7 @@
         "colter": {
           "codeColter": null
         },
-        "conventionsCollectives": [],
+        "conventionsCollectives": {},
         "matchingEtablissements": [],
         "nombreEtablissements": 1,
         "nombreEtablissementsOuverts": 0,

@@ -6,7 +6,7 @@ import { Tag } from '#components-ui/tag';
 import { MC } from '#components/administrations';
 import { DataSection } from '#components/section/data-section';
 import { FullTable } from '#components/table/full';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import { IAPINotRespondingError } from '#models/api-not-responding';
 import { IEntrepreneurSpectaclesCertification } from '#models/certifications/entrepreneur-spectacles';
 import { formatDateLong } from '#utils/helpers';
@@ -19,6 +19,7 @@ export const CertificationsEntrepreneurSpectaclesSection: React.FC<{
   return (
     <DataSection
       title="Entrepreneur de spectacles vivants"
+      id="entrepreneur-spectacles"
       sources={[EAdministration.MC]}
       data={entrepreneurSpectacles}
       notFoundInfo={

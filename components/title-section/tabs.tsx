@@ -3,19 +3,17 @@ import {
   checkHasLabelsAndCertificates,
   checkHasQuality,
 } from '#components/labels-and-certificates-badges-section';
-import { isAPINotResponding } from '#models/api-not-responding';
 import constants from '#models/constants';
 import {
   IUniteLegale,
-  isAssociation,
   isCollectiviteTerritoriale,
   isServicePublic,
 } from '#models/index';
-import { ISession, isSuperAgent } from '#utils/session';
+import { ISession, isAgent } from '#utils/session';
 
 export enum FICHE {
   INFORMATION = 'résumé',
-  AGENTS = 'espace agent',
+  DOCUMENTS = 'documents',
   ACTES = 'actes & statuts',
   ANNONCES = 'annonces',
   FINANCES = 'finances',
@@ -38,14 +36,7 @@ export const Tabs: React.FC<{
     // hide for public services
     !isServicePublic(uniteLegale) &&
     // hide for EI
-    !uniteLegale.complements.estEntrepreneurIndividuel &&
-    // hide for asso without bilans
-    !(
-      isAssociation(uniteLegale) &&
-      (!uniteLegale.association.data ||
-        isAPINotResponding(uniteLegale.association.data) ||
-        (uniteLegale.association.data?.bilans || []).length === 0)
-    );
+    !uniteLegale.complements.estEntrepreneurIndividuel;
 
   const tabs = [
     {
@@ -55,14 +46,6 @@ export const Tabs: React.FC<{
       noFollow: false,
       shouldDisplay: true,
       width: '80px',
-    },
-    {
-      ficheType: FICHE.AGENTS,
-      label: 'Fiche agents publics',
-      pathPrefix: '/espace-agent/',
-      noFollow: false,
-      shouldDisplay: isSuperAgent(session),
-      width: '110px',
     },
     {
       ficheType: FICHE.JUSTIFICATIFS,
@@ -84,6 +67,14 @@ export const Tabs: React.FC<{
       pathPrefix: '/dirigeants/',
       noFollow: false,
       shouldDisplay: !isCollectiviteTerritoriale(uniteLegale),
+    },
+    {
+      ficheType: FICHE.DOCUMENTS,
+      label: 'Documents',
+      pathPrefix: '/documents/',
+      noFollow: false,
+      shouldDisplay: isAgent(session),
+      width: '110px',
     },
     {
       ficheType: FICHE.FINANCES,
@@ -122,7 +113,8 @@ export const Tabs: React.FC<{
       label: 'Conventions collectives',
       pathPrefix: '/divers/',
       noFollow: false,
-      shouldDisplay: (uniteLegale.conventionsCollectives || []).length > 0,
+      shouldDisplay:
+        Object.keys(uniteLegale.conventionsCollectives || {}).length > 0,
       width: '130px',
     },
   ];

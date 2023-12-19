@@ -1,10 +1,11 @@
 import { HttpNotFound } from '#clients/exceptions';
 import { clientOrganismeFormation } from '#clients/open-data-soft/clients/qualiopi';
-import { EAdministration } from '#models/administrations';
+import { EAdministration } from '#models/administrations/EAdministration';
 import {
   APINotRespondingFactory,
   IAPINotRespondingError,
 } from '#models/api-not-responding';
+import { FetchRessourceException } from '#models/exceptions';
 import logErrorInSentry from '#utils/sentry';
 import { IUniteLegale } from '..';
 
@@ -33,10 +34,16 @@ export const getOrganismesDeFormation = async (
     if (e instanceof HttpNotFound) {
       return APINotRespondingFactory(EAdministration.MTPEI, 404);
     }
-    logErrorInSentry(e, {
-      siren: uniteLegale.siren,
-      errorName: 'Error in Organisme de formation',
-    });
+    logErrorInSentry(
+      new FetchRessourceException({
+        cause: e,
+        ressource: 'OrganismeFormation',
+        context: {
+          siren: uniteLegale.siren,
+        },
+        administration: EAdministration.MTPEI,
+      })
+    );
     return APINotRespondingFactory(EAdministration.MTPEI, 500);
   }
 };

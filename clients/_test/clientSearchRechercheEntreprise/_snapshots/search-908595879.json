@@ -36,10 +36,10 @@
           "libelleTrancheEffectif": "",
           "latitude": "48.873057",
           "longitude": "2.316605",
-          "conventionsCollectives": [],
           "anneeTrancheEffectif": null
         },
         "allSiegesSiret": [],
+        "tva": null,
         "statutDiffusion": "diffusible",
         "etatAdministratif": "en activité",
         "nomComplet": "SEVERNAYA",
@@ -72,7 +72,6 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.873057",
               "longitude": "2.316605",
-              "conventionsCollectives": [],
               "anneeTrancheEffectif": null
             }
           ],
@@ -101,7 +100,6 @@
               "libelleTrancheEffectif": "",
               "latitude": "48.873057",
               "longitude": "2.316605",
-              "conventionsCollectives": [],
               "anneeTrancheEffectif": null
             }
           ],
@@ -145,7 +143,7 @@
         "colter": {
           "codeColter": null
         },
-        "conventionsCollectives": [],
+        "conventionsCollectives": {},
         "matchingEtablissements": [],
         "nombreEtablissements": 1,
         "nombreEtablissementsOuverts": 1,
