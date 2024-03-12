@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import FAQLink from '#components-ui/faq-link';
 import { Icon } from '#components-ui/icon/wrapper';
 import InformationTooltip from '#components-ui/information-tooltip';
@@ -13,6 +12,7 @@ import { IUniteLegale } from '#models/core/types';
 import { ITVAIntracommunautaire } from '#models/tva';
 import { Siren, formatIntFr } from '#utils/helpers';
 import useFetchTVA from 'hooks/fetch/tva';
+import React from 'react';
 
 const NoTVA = () => <i>Non-assujetti à la TVA</i>;
 
@@ -30,7 +30,7 @@ const Unknown = () => (
 );
 
 const CopyCell = ({ number }: { number: string }) => (
-  <CopyPaste shouldTrim={true} id="tva-cell-result" label="TVA">
+  <CopyPaste shouldRemoveSpace={true} id="tva-cell-result" label="TVA">
     {'FR' + formatIntFr(number)}
   </CopyPaste>
 );
